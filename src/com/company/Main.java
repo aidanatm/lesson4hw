@@ -5,22 +5,21 @@ import java.util.Random;
 public class Main {
 
     public static int bossHealth = 700;
-    public static int bossDamage = 50;
+    public static int bossDamage = 100;
     public static String bossDefenceType = "";
-    public static int[] heroesHealth = {260, 270, 300, 270};
-    public static int[] heroesDamage = {10, 20, 5, 10};
-    public static String[] heroesAttackType = {"Physical", "Magical", "Mental", "Medic"};
+    public static int[] heroesHealth = {260, 270, 300, 270, 450};
+    public static int[] heroesDamage = {10, 20, 10, 10, 5};
+    public static String[] heroesAttackType = {"Physical", "Magical", "Mental", "Medic", "Golem"};
+
 
 
     public static void heroesHit() {
         for (int i = 0; i < heroesDamage.length; i++) {
-            if (heroesHealth[i] > 0 && bossHealth > 0 && heroesAttackType[3] != heroesAttackType[i]) {
-                //живы ли героиб и жив ли босс и 270 не равен 270
-                if (bossHealth - heroesDamage[i] < 0)
-                    bossHealth = 0;
-                else bossHealth = bossHealth - heroesDamage[i];
+            if (heroesHealth[i] > 0 && bossHealth > 0 && !heroesAttackType[3].equals(heroesAttackType[i])) {
+                //живы ли герои и жив ли босс и 270 не равен 270
+                bossHealth = Math.max(bossHealth - heroesDamage[i], 0);
             } else {
-                System.out.println(heroesAttackType[i]+" не атаковал");
+                System.out.println(heroesAttackType[i] + " не атаковал");
             }
         }
     }
@@ -33,6 +32,7 @@ public class Main {
         System.out.println("Magical health: " + heroesHealth[1]);
         System.out.println("Mental health: " + heroesHealth[2]);
         System.out.println("Medic health: " + heroesHealth[3]);
+        System.out.println("Golem health: " + heroesHealth[4]);
         System.out.println("-----------");
 
     }
@@ -51,8 +51,9 @@ public class Main {
         heroesHit();
         bossHit();
         medicsTreatment();
-
+        golem();
     }
+
 
     private static void medicsTreatment() {
         Random random = new Random();
@@ -72,12 +73,31 @@ public class Main {
         }
     }
 
+    private static void golem() {
+        if (heroesHealth[4] > 0) {
+            heroesHealth[4] -= bossDamage;
+            for (int i = 0; i < heroesAttackType.length; i++) {
+                if (!heroesAttackType[i].equals(heroesAttackType[4]) && heroesHealth[i] > 0)
+                    heroesHealth[4] -= bossDamage / 5;
+            }
+        }
+    }
+
+
     public static void bossHit() {
         for (int i = 0; i < heroesHealth.length; i++) {
+            // Цикл, отвечает за то, чтобы он прошелся по всем игрокам
             if (heroesHealth[i] > 0 && bossHealth > 0) {
-                if (heroesHealth[i] - bossDamage < 0) {
-                    heroesHealth[i] = 0;
-                } else heroesHealth[i] = heroesHealth[i] - bossDamage;
+//                Если герои и босс живы
+                //                    Если урон босса меньше нуля, то он засчитывается как ноль, (не отрицательное число)
+                if (!heroesAttackType[i].equals(heroesAttackType[4])) {
+
+                    if (heroesHealth[4] > 0)
+                        heroesHealth[i] = Math.max(heroesHealth[i] - bossDamage - (bossDamage / 5), 0);
+                    else heroesHealth[i]=Math.max(heroesHealth[i]- bossDamage,0 );
+
+                }
+//                Иначе он просто ударяет
             }
         }
     }
@@ -102,4 +122,11 @@ public class Main {
         System.out.println("Boss defence type: " + bossDefenceType);
     }
 }
+
+
+/*
+1. Принимает на себя 1/5 часть удара от босса по другим игрокам.
+
+2.
+ */
 
