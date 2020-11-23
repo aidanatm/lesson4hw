@@ -5,12 +5,11 @@ import java.util.Random;
 public class Main {
 
     public static int bossHealth = 700;
-    public static int bossDamage = 100;
+    public static int bossDamage = 50;
     public static String bossDefenceType = "";
-    public static int[] heroesHealth = {260, 270, 300, 270, 450};
-    public static int[] heroesDamage = {10, 20, 10, 10, 5};
-    public static String[] heroesAttackType = {"Physical", "Magical", "Mental", "Medic", "Golem"};
-
+    public static int[] heroesHealth = {260, 270, 300, 270, 450, 300};
+    public static int[] heroesDamage = {10, 20, 10, 10, 5, 10};
+    public static String[] heroesAttackType = {"Physical", "Magical", "Mental", "Medic", "Golem", "Lucky"};
 
 
     public static void heroesHit() {
@@ -33,6 +32,7 @@ public class Main {
         System.out.println("Mental health: " + heroesHealth[2]);
         System.out.println("Medic health: " + heroesHealth[3]);
         System.out.println("Golem health: " + heroesHealth[4]);
+        System.out.println("Lucky health: " + heroesHealth[5]);
         System.out.println("-----------");
 
     }
@@ -52,6 +52,7 @@ public class Main {
         bossHit();
         medicsTreatment();
         golem();
+        lucky();
     }
 
 
@@ -75,14 +76,60 @@ public class Main {
 
     private static void golem() {
         if (heroesHealth[4] > 0) {
-            heroesHealth[4] -= bossDamage;
+            //если голем жив
+            if (heroesHealth[4] - bossDamage < 0)
+//                если жизнь голема после удара отрицательное число
+                heroesHealth[4] = 0;
+//            то его здоровье равно 0
+            else
+                heroesHealth[4] = heroesHealth[4] - bossDamage;
             for (int i = 0; i < heroesAttackType.length; i++) {
+//                подставляет каждого героя
                 if (!heroesAttackType[i].equals(heroesAttackType[4]) && heroesHealth[i] > 0)
+//                    если это не голем и герои живы
                     heroesHealth[4] -= bossDamage / 5;
+//                то голем забирает 1/5 удара босса от игроков
+                if (heroesHealth[4] - bossDamage < 0)
+                    heroesHealth[4] = 0;
+
             }
         }
     }
 
+    private static void lucky() {
+//        Random random = new Random();
+//        boolean blin = random.nextBoolean();
+//        if (heroesHealth[5] > 0) {
+//            if (!blin) {
+//                if (heroesHealth[4] > 0) {
+////                    если голем жив
+//                    if (heroesHealth[5] - bossDamage + bossDamage / 5 < 0)
+//                        // если отнять 40 со здоровья лаки  и это меньше нуля
+//                        heroesHealth[5] = 0;
+//                    //                то выходит ноль
+//                    else
+//                        heroesHealth[5] -= bossDamage + bossDamage / 5;
+//
+//                }
+//                if (heroesHealth[4] < 0) {
+//                     heroesHealth[5] = Math.max(heroesHealth[5] - bossDamage, 0);
+//                }
+//            } else {
+//                System.out.println("Lucky уклонился от удара");
+//
+//            }
+//        }
+//    }
+        Random random = new Random();
+    int blin = random.nextInt(5);
+    if (heroesHealth[5]>0 && heroesHealth[4] >0){
+        if (blin == 1){
+            heroesHealth[5]= heroesHealth[5]- bossDamage + bossDamage/5;
+        }
+    }if (heroesHealth[5]> 0 && heroesHealth[4]<0){
+
+        }
+    }
 
     public static void bossHit() {
         for (int i = 0; i < heroesHealth.length; i++) {
@@ -90,11 +137,13 @@ public class Main {
             if (heroesHealth[i] > 0 && bossHealth > 0) {
 //                Если герои и босс живы
                 //                    Если урон босса меньше нуля, то он засчитывается как ноль, (не отрицательное число)
-                if (!heroesAttackType[i].equals(heroesAttackType[4])) {
+                if (!heroesAttackType[i].equals(heroesAttackType[4]) && !heroesAttackType[i].equals(heroesAttackType[5])) {
 
                     if (heroesHealth[4] > 0)
-                        heroesHealth[i] = Math.max(heroesHealth[i] - bossDamage - (bossDamage / 5), 0);
-                    else heroesHealth[i]=Math.max(heroesHealth[i]- bossDamage,0 );
+                        heroesHealth[i] = Math.max(heroesHealth[i] - bossDamage + (bossDamage / 5), 0);
+
+                    else heroesHealth[i] = Math.max(heroesHealth[i] - bossDamage, 0);
+
 
                 }
 //                Иначе он просто ударяет
@@ -103,11 +152,23 @@ public class Main {
     }
 
     public static boolean isFinished() {
+        int deadHeroes = 0;
+        // количество мёртвых героев
         if (bossHealth <= 0) {
             System.out.println("Heroes won!!!");
             return true;
         }
-        if (heroesHealth[0] <= 0 && heroesHealth[1] <= 0 && heroesHealth[2] <= 0) {
+
+        for (int i = 0; i < heroesAttackType.length; i++) {
+            if (heroesHealth[i] <= 0) {
+                // если герой мёртв
+                deadHeroes++;
+                //прибавляется 1 герой к умершим
+            }
+        }
+
+        if (deadHeroes == heroesAttackType.length) {
+            // если количество умерших героев равняется длине массива, то босс выйграл
             System.out.println("Boss won!!!");
             return true;
         }
@@ -125,8 +186,8 @@ public class Main {
 
 
 /*
-1. Принимает на себя 1/5 часть удара от босса по другим игрокам.
+1.Добавить игрока Lucky ✔️
 
-2.
+2.Lucky имеет шанс уклонения от ударов босса
  */
 
